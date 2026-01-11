@@ -15,7 +15,29 @@
 ---
 
 ## 📸 Screenshots | صور التطبيق
-*(Add your screenshots here later)*
+
+### 1️⃣ Home Screen | القائمة الرئيسية
+![Home Screen](screenshots/Home.png)
+
+### 2️⃣ Setup Process | خطوات الإعداد
+Choose your activity, duration, and number of sessions:
+*اختر النشاط، المدة، وعدد الجلسات:*
+
+| Duration Selection | Session Count |
+| :---: | :---: |
+| ![Duration](screenshots/Session-Duration.png) | ![Sessions](screenshots/Sessions.png) |
+
+### 3️⃣ Focus Mode | وضع التركيز
+This is how the timer looks while you are working:
+*شكل العداد أثناء العمل:*
+
+![In Action](screenshots/howitlook.png)
+
+### 4️⃣ Discord Integration | التكامل مع ديسكورد
+How your status appears to your friends:
+*كيف تظهر حالتك لأصدقائك:*
+
+![Discord Status](screenshots/discordstatusprewier.png)
 
 ---
 
