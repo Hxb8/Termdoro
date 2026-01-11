@@ -1,0 +1,9 @@
+[package]
+name = "rust-pomo-discord"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ratatui = { version = "0.26", features = ["crossterm"] }
+crossterm = { version = "0.27", features = ["events"] }
+discord-rich-presence = "0.2"

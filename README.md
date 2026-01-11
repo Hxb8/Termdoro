@@ -22,7 +22,7 @@
 ## 🛠️ Installation | التحميل والتشغيل
 
 ### For Users (Windows/Linux/macOS)
-1. Go to the [Releases](https://github.com/YOUR_USERNAME/rust-pomo-discord/releases) page.
+1. Go to the [Releases](https://github.com/hexbyte16/rust-pomo-discord/releases) page.
 2. Download the version for your Operating System.
 3. Run the file in your terminal.
    *   **Linux:** `chmod +x pomo-linux && ./pomo-linux`
@@ -50,4 +50,4 @@ This app only connects to Discord through the official IPC (Local) to update you
 ## 🤝 Contribution
 If you find a bug or have a feature request, feel free to open an issue (if the repo is public) or contact me!
 
-**Made with ❤️ and 🦀 by [Your Name/Hexbyte]**
+**Made with ❤️ and 🦀 by [Islam/Hexbyte]**
