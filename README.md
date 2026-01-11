@@ -24,8 +24,8 @@
 ### For Users (Windows/Linux/macOS)
 1. Go to the [Releases](https://github.com/hexbyte16/rust-pomo-discord/releases) page.
 2. Download the version for your Operating System.
-3. Run the file in your terminal.
-   *   **Linux:** `chmod +x pomo-linux && ./pomo-linux`
+4. Run the file in your terminal.
+   *   **Linux:** `chmod +x rust-pomo-discord && ./rust-pomo-discord`
    *   **Windows:** Double-click the `.exe` file.
 
 ---
