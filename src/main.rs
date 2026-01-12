@@ -6,12 +6,12 @@ use crossterm::{
 use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
 use ratatui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    widgets::{Block, Borders, Gauge, List, ListItem, ListState, Paragraph, Wrap},
+    widgets::{Block, Borders, Gauge, List, ListItem, ListState, Paragraph},
     Terminal,
 };
-use std::{error::Error, io, time::{Duration, Instant}};
+use std::{error::Error, io, time::{Duration, Instant, SystemTime, UNIX_EPOCH}};
 
 const DISCORD_APP_ID: &str = "1459887165784723673";
 
@@ -29,8 +29,6 @@ struct App {
     selected_activity: usize,
     duration: u32,
     total_sessions: u32,
-    
-    // Running State
     current_session: u32,
     time_remaining: u32,
     is_working: bool,
@@ -42,7 +40,15 @@ impl App {
     fn new() -> App {
         App {
             screen: Screen::SelectActivity,
-            activities: vec!["Studying 📚", "Working 💼", "Programming 🦀", "Reading 📖"],
+            activities: vec![
+                "Studying 📚", 
+                "Coding 💻", 
+                "Deep Work 🧠", 
+                "Designing 🎨", 
+                "Reading 📖", 
+                "Writing ✍️",
+                "Exercising 🏋️"
+            ],
             selected_activity: 0,
             duration: 25,
             total_sessions: 4,
@@ -69,7 +75,7 @@ impl App {
         } else if self.time_remaining == 0 {
             if self.is_working {
                 if self.current_session >= self.total_sessions {
-                    self.screen = Screen::SelectActivity; // انتهى العمل
+                    self.screen = Screen::SelectActivity;
                 } else {
                     self.is_working = false;
                     self.time_remaining = self.calculate_break();
@@ -153,64 +159,66 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn ui(f: &mut ratatui::Frame, app: &mut App, list_state: &mut ListState) {
-    let area = f.size();
-    
-    // تقسيم الشاشة (Header, Main, Footer)
     let chunks = Layout::default()
         .direction(Direction::Vertical)
+        .margin(1)
         .constraints([
             Constraint::Length(3),
             Constraint::Min(10),
             Constraint::Length(3),
         ])
-        .split(area);
+        .split(f.size());
 
-    // 1. Header
-    let header = Paragraph::new("⚡ PRO POMODORO TUI ⚡")
-        .style(Style::default().fg(Color::Magenta).add_modifier(Modifier::BOLD))
+    // 1. Header المحسن
+    let header = Paragraph::new("⭐ RUST POMODORO ELITE ⭐")
+        .style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::DarkGray)));
+        .block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::Indexed(5))));
     f.render_widget(header, chunks[0]);
 
-    // 2. Main Area (تتغير حسب المرحلة)
+    // 2. Main Content
     match app.screen {
         Screen::SelectActivity => {
             let items: Vec<ListItem> = app.activities.iter().map(|a| ListItem::new(*a)).collect();
             let list = List::new(items)
-                .block(Block::default().title(" Step 1: What are you doing? ").borders(Borders::ALL))
-                .highlight_style(Style::default().bg(Color::Magenta).fg(Color::White))
-                .highlight_symbol(">> ");
+                .block(Block::default().title(" [1] Select Your Activity ").borders(Borders::ALL))
+                .highlight_style(Style::default().bg(Color::Blue).fg(Color::White).add_modifier(Modifier::BOLD))
+                .highlight_symbol("▶ ");
             f.render_stateful_widget(list, chunks[1], list_state);
         }
         Screen::SelectDuration => {
-            let msg = format!("\n\n  Duration: {} Minutes\n\n  (Break will be {} min)", 
-                app.duration, if app.duration >= 40 { 10 } else { 5 });
-            let p = Paragraph::new(msg)
-                .block(Block::default().title(" Step 2: Set Session Duration (25-50) ").borders(Borders::ALL))
-                .alignment(Alignment::Center)
-                .style(Style::default().fg(Color::Cyan));
+            let p = Paragraph::new(format!("\n\n⏱️ Duration: {} Minutes\n\n☕ Break: {} Minutes", 
+                app.duration, if app.duration >= 40 { 10 } else { 5 }))
+                .block(Block::default().title(" [2] Set Session Time ").borders(Borders::ALL))
+                .alignment(Alignment::Center).style(Style::default().fg(Color::Cyan));
             f.render_widget(p, chunks[1]);
         }
         Screen::SelectSessions => {
-            let msg = format!("\n\n  Total Sessions: {}\n\n  (Press Enter to Start)", app.total_sessions);
-            let p = Paragraph::new(msg)
-                .block(Block::default().title(" Step 3: How many sessions? ").borders(Borders::ALL))
-                .alignment(Alignment::Center)
-                .style(Style::default().fg(Color::Yellow));
+            let p = Paragraph::new(format!("\n\n🔄 Total Sessions: {}\n\n🚀 Press Enter to Start!", app.total_sessions))
+                .block(Block::default().title(" [3] Set Session Count ").borders(Borders::ALL))
+                .alignment(Alignment::Center).style(Style::default().fg(Color::Green));
             f.render_widget(p, chunks[1]);
         }
         Screen::Running => {
             let total_time = if app.is_working { app.duration * 60 } else { app.calculate_break() };
             let progress = (((total_time - app.time_remaining) as f64 / total_time as f64) * 100.0) as u16;
             
-            let label = format!("{:02}:{:02}", app.time_remaining / 60, app.time_remaining % 60);
-            let color = if app.is_working { Color::Red } else { Color::Green };
+            let label = format!("{} / {}", 
+                format_time(app.time_remaining), 
+                format_time(total_time));
+
+            let color = if app.is_paused { Color::Indexed(8) } 
+                        else if app.is_working { Color::Red } 
+                        else { Color::Green };
             
+            let status_msg = if app.is_paused { "|| PAUSED ||" } 
+                            else if app.is_working { "WORKING..." } 
+                            else { "BREAK TIME" };
+
             let gauge = Gauge::default()
                 .block(Block::default().title(format!(" {} Session {}/{} ", 
-                    if app.is_working { "WORKING" } else { "BREAK" },
-                    app.current_session, app.total_sessions)).borders(Borders::ALL))
-                .gauge_style(Style::default().fg(color))
+                    status_msg, app.current_session, app.total_sessions)).borders(Borders::ALL))
+                .gauge_style(Style::default().fg(color).add_modifier(Modifier::ITALIC))
                 .percent(progress.min(100))
                 .label(label);
             f.render_widget(gauge, chunks[1]);
@@ -219,40 +227,55 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, list_state: &mut ListState) {
 
     // 3. Footer
     let help_msg = match app.screen {
-        Screen::Running => " [Space] Pause | [Q] Back to Menu ",
-        _ => " [↑/↓] Navigate | [Enter] Select | [Q] Quit ",
+        Screen::Running => " [Space] Play/Pause | [Q] Back to Menu ",
+        _ => " [↑/↓] Navigate | [Enter] Confirm | [Q] Quit ",
     };
     let footer = Paragraph::new(help_msg)
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::DarkGray)));
+        .style(Style::default().fg(Color::DarkGray))
+        .block(Block::default().borders(Borders::ALL));
     f.render_widget(footer, chunks[2]);
+}
+
+fn format_time(seconds: u32) -> String {
+    format!("{:02}:{:02}", seconds / 60, seconds % 60)
 }
 
 fn update_discord(drpc: &mut Option<DiscordIpcClient>, app: &App) {
     if let Some(ref mut client) = drpc {
-        let activity_type = app.activities[app.selected_activity];
+        let activity_name = app.activities[app.selected_activity];
+        
+        // 1. الحالة (State)
         let state = if app.screen != Screen::Running {
-            "Setting up...".to_string()
+            "Configuring...".to_string()
         } else if app.is_paused {
-            format!("Paused: {}", activity_type)
+            format!("⏸️ Paused: {}", activity_name)
         } else if app.is_working {
-            format!("Focusing on: {}", activity_type)
+            format!("🔥 Focusing: {}", activity_name)
         } else {
-            "Taking a break ☕".to_string()
+            "☕ Taking a Break".to_string()
         };
 
+        // 2. التفاصيل (Details)
         let details = if app.screen == Screen::Running {
-            format!("Session {}/{} ({:02}:{:02} left)", 
-                app.current_session, app.total_sessions,
-                app.time_remaining / 60, app.time_remaining % 60)
+            format!("Session {} of {}", app.current_session, app.total_sessions)
         } else {
-            "Ready to start".to_string()
+            "Preparing for success".to_string()
         };
 
-        let _ = client.set_activity(activity::Activity::new()
+        let mut payload = activity::Activity::new()
             .state(&state)
             .details(&details)
-            .assets(activity::Assets::new().large_image("app_icon"))
-        );
+            .assets(activity::Assets::new().large_image("app_icon"));
+
+        // 3. العداد الحي (Live Countdown)
+        // يتم إرسال "وقت الانتهاء" لديسكورد وهو يتكفل بالعد التنازلي
+        if app.screen == Screen::Running && !app.is_paused {
+            let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+            let end_timestamp = now + app.time_remaining as u64;
+            payload = payload.timestamps(activity::Timestamps::new().end(end_timestamp as i64));
+        }
+
+        let _ = client.set_activity(payload);
     }
 }
