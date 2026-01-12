@@ -3,18 +3,24 @@ name: Release
 on:
   push:
     tags:
-      - 'v*' # سيعمل الأكشن عندما ترفع Tag يبدأ بحرف v
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    # جعل المهام تعمل بشكل مستقل (لو فشل واحد لا يتوقف البقية)
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: pomo-linux
+            artifact_name: rust-pomo-discord
             asset_name: pomo-linux.tar.gz
           - os: windows-latest
             artifact_name: rust-pomo-discord.exe
@@ -26,6 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install dependencies (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
@@ -36,13 +48,14 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           cd target/release
+          # التأكد من اسم الملف قبل الضغط
           tar -czf ../../${{ matrix.asset_name }} ${{ matrix.artifact_name }}
 
       - name: Package Assets (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           cd target/release
-          compress-archive rust-pomo-discord.exe ../../${{ matrix.asset_name }}
+          compress-archive ${{ matrix.artifact_name }} ../../${{ matrix.asset_name }}
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
