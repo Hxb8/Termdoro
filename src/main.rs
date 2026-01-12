@@ -67,6 +67,7 @@ impl App {
     fn start_timer(&mut self) {
         self.time_remaining = self.duration * 60;
         self.screen = Screen::Running;
+        self.is_paused = false;
     }
 
     fn tick(&mut self) {
@@ -88,6 +89,10 @@ impl App {
             self.is_paused = true;
         }
     }
+}
+
+fn format_time(seconds: u32) -> String {
+    format!("{:02}:{:02}", seconds / 60, seconds % 60)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -169,14 +174,12 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, list_state: &mut ListState) {
         ])
         .split(f.size());
 
-    // 1. Header المحسن
     let header = Paragraph::new("⭐ RUST POMODORO ELITE ⭐")
         .style(Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::Indexed(5))));
     f.render_widget(header, chunks[0]);
 
-    // 2. Main Content
     match app.screen {
         Screen::SelectActivity => {
             let items: Vec<ListItem> = app.activities.iter().map(|a| ListItem::new(*a)).collect();
@@ -203,17 +206,10 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, list_state: &mut ListState) {
             let total_time = if app.is_working { app.duration * 60 } else { app.calculate_break() };
             let progress = (((total_time - app.time_remaining) as f64 / total_time as f64) * 100.0) as u16;
             
-            let label = format!("{} / {}", 
-                format_time(app.time_remaining), 
-                format_time(total_time));
-
-            let color = if app.is_paused { Color::Indexed(8) } 
-                        else if app.is_working { Color::Red } 
-                        else { Color::Green };
+            let label = format!("{} / {}", format_time(app.time_remaining), format_time(total_time));
+            let color = if app.is_paused { Color::Indexed(8) } else if app.is_working { Color::Red } else { Color::Green };
             
-            let status_msg = if app.is_paused { "|| PAUSED ||" } 
-                            else if app.is_working { "WORKING..." } 
-                            else { "BREAK TIME" };
+            let status_msg = if app.is_paused { "|| PAUSED ||" } else if app.is_working { "WORKING..." } else { "BREAK TIME" };
 
             let gauge = Gauge::default()
                 .block(Block::default().title(format!(" {} Session {}/{} ", 
@@ -225,7 +221,6 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, list_state: &mut ListState) {
         }
     }
 
-    // 3. Footer
     let help_msg = match app.screen {
         Screen::Running => " [Space] Play/Pause | [Q] Back to Menu ",
         _ => " [↑/↓] Navigate | [Enter] Confirm | [Q] Quit ",
@@ -237,15 +232,10 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, list_state: &mut ListState) {
     f.render_widget(footer, chunks[2]);
 }
 
-fn format_time(seconds: u32) -> String {
-    format!("{:02}:{:02}", seconds / 60, seconds % 60)
-}
-
 fn update_discord(drpc: &mut Option<DiscordIpcClient>, app: &App) {
     if let Some(ref mut client) = drpc {
         let activity_name = app.activities[app.selected_activity];
         
-        // 1. الحالة (State)
         let state = if app.screen != Screen::Running {
             "Configuring...".to_string()
         } else if app.is_paused {
@@ -256,26 +246,23 @@ fn update_discord(drpc: &mut Option<DiscordIpcClient>, app: &App) {
             "☕ Taking a Break".to_string()
         };
 
-        // 2. التفاصيل (Details)
         let details = if app.screen == Screen::Running {
             format!("Session {} of {}", app.current_session, app.total_sessions)
         } else {
             "Preparing for success".to_string()
         };
 
-        let mut payload = activity::Activity::new()
+        let mut activity_payload = activity::Activity::new()
             .state(&state)
             .details(&details)
             .assets(activity::Assets::new().large_image("app_icon"));
 
-        // 3. العداد الحي (Live Countdown)
-        // يتم إرسال "وقت الانتهاء" لديسكورد وهو يتكفل بالعد التنازلي
         if app.screen == Screen::Running && !app.is_paused {
             let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
             let end_timestamp = now + app.time_remaining as u64;
-            payload = payload.timestamps(activity::Timestamps::new().end(end_timestamp as i64));
+            activity_payload = activity_payload.timestamps(activity::Timestamps::new().end(end_timestamp as i64));
         }
 
-        let _ = client.set_activity(payload);
+        let _ = client.set_activity(activity_payload);
     }
 }
