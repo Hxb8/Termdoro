@@ -53,7 +53,7 @@ curl -sSL https://raw.githubusercontent.com/hexbyte16/rust-pomo-discord/main/ins
 
 ### 🟫 Developers (Cargo)
 ```bash
-cargo install rust-pomo-discord
+cargo install pomodoro-tui-discord
 ```
 
 ### ⬜ Windows

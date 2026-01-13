@@ -1,23 +1,31 @@
 [package]
-name = "pomodoro-tui" # تأكد أن الاسم متاح في crates.io
+name = "pomodoro-tui-discord"
 version = "1.0.5"
 edition = "2021"
-authors = ["hexbyte16 hexbyte41@gmail.com"]
-description = "A professional Pomodoro TUI with Discord Rich Presence and YouTube BGM support"
+authors = ["hexbyte16 islamamara062@@gmail.com"]
+description = "Professional Pomodoro TUI with Discord and YouTube BGM support."
 license = "MIT"
 repository = "https://github.com/hexbyte16/rust-pomo-discord"
-homepage = "https://github.com/hexbyte16/rust-pomo-discord"
-keywords = ["pomodoro", "tui", "discord", "productivity", "rust"]
-categories = ["command-line-utilities", "productivity"]
 
-# مهم جداً: استبعاد الملفات الضخمة من النشر
-#crates.io لديها حد 10 ميجا للمشروع، والملفات الصوتية ستجعل النشر يفشل
+
 exclude = [
-    "alert.mp3",
-    "bgm/*",
     "target/*",
-    "screenshots/*"
+    "bgm/*",
+    "screenshots/*",
+    "alert.mp3",
+    "*.png",
+    "*.tar.gz",
+    "*.zip",
+    ".github/*"
 ]
 
+
 [dependencies]
-# ... مكتباتك كما هي ...
+ratatui = "0.26"
+crossterm = "0.27"
+discord-rich-presence = "0.2"
+notify-rust = "4"
+rodio = "0.17"
+reqwest = { version = "0.11", features = ["blocking"] }
+
+
