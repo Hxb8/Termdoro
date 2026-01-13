@@ -2,13 +2,16 @@
 
 # تحديد النظام
 OS="$(uname -s)"
-ARCH="$(uname -m)"
 REPO="hexbyte16/rust-pomo-discord"
+# جلب آخر نسخة
 LATEST_TAG=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 
 echo "📦 Installing Pomodoro TUI ($LATEST_TAG) for $OS..."
 
-# تحديد رابط التحميل بناءً على النظام
+if [ -d "/usr/local/bin/pomo" ]; then
+    sudo rm -rf /usr/local/bin/pomo
+fi
+
 if [ "$OS" = "Linux" ]; then
     URL="https://github.com/$REPO/releases/download/$LATEST_TAG/pomo-linux.tar.gz"
     FILE="pomo-linux.tar.gz"
@@ -16,19 +19,23 @@ elif [ "$OS" = "Darwin" ]; then
     URL="https://github.com/$REPO/releases/download/$LATEST_TAG/pomo-macos.tar.gz"
     FILE="pomo-macos.tar.gz"
 else
-    echo "❌ Your OS is not supported by this script. Download manually from GitHub."
+    echo "❌ OS not supported."
     exit 1
 fi
 
-# تحميل وفك الضغط
 curl -L $URL -o $FILE
 tar -xzf $FILE
 
-# نقل الملف للمسار العالمي
-sudo mv rust-pomo-discord /usr/local/bin/pomo
-chmod +x /usr/local/bin/pomo
+BIN_NAME=$(ls | grep -E 'pomodoro-tui-discord|rust-pomo-discord' | head -n 1)
 
-# تنظيف
-rm $FILE
+if [ -z "$BIN_NAME" ]; then
+    echo "❌ Error: Could not find the binary file after extraction."
+    exit 1
+fi
+
+sudo mv "$BIN_NAME" /usr/local/bin/pomo
+sudo chmod +x /usr/local/bin/pomo
+
+rm -rf $FILE
 
 echo "✅ Done! Just type 'pomo' in your terminal to start."
