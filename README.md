@@ -1,5 +1,4 @@
-```markdown
-# 🦀 Pomodoro TUI - Ultimate Edition 🚀
+# 🦀 Pomodoro TUI  🚀
 
 **Focus like a pro!** A high-performance Terminal User Interface (TUI) Pomodoro timer written in Rust. Sync your sessions with Discord, listen to your favorite YouTube BGM, and customize your experience with themes.
 
@@ -94,5 +93,4 @@ This application is **Open Source**. It only communicates locally with your Disc
 Found a bug? Have an idea? Feel free to open an **Issue** or submit a **Pull Request**! 
 
 **Made with ❤️ and 🦀 by [Islam/Hexbyte]**
-```
 
