@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ratatui = { version = "0.26", features = ["crossterm"] }
-crossterm = { version = "0.27", features = ["events"] }
+ratatui = "0.26"
+crossterm = "0.27"
 discord-rich-presence = "0.2"
+notify-rust = "4"
+rodio = "0.17"
+reqwest = { version = "0.11", features = ["blocking"] }
