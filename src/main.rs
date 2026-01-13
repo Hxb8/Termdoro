@@ -238,7 +238,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             if app.settings_cursor == 0 { app.notifications_enabled = !app.notifications_enabled; }
                             else { app.theme = match app.theme { Theme::Cyan => Theme::Magenta, Theme::Magenta => Theme::Green, Theme::Green => Theme::Yellow, Theme::Yellow => Theme::Red, Theme::Red => Theme::Cyan }; }
                         }
-                        KeyCode::Esc | KeyCode::Char('q') | KeyCode::Char('h') => app.screen = Screen::Activity,
+                        KeyCode::Esc | KeyCode::Char('q') => app.screen = Screen::Activity,
                         _ => {}
                     },
                     Screen::Timer => match key.code {
