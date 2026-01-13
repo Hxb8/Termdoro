@@ -1,10 +1,13 @@
-use std::{error::Error, io, fs, process::{Command, Stdio}, sync::{Arc, Mutex}, time::{Duration, Instant, SystemTime, UNIX_EPOCH}};
+use std::{error::Error, io, fs, process::{Command, Stdio}, sync::{Arc, Mutex}, time::{Duration, Instant, SystemTime, UNIX_EPOCH}, path::PathBuf};
 use crossterm::{event::{self, DisableMouseCapture, Event, KeyCode}, execute, terminal::*};
 use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
 use ratatui::{backend::CrosstermBackend, layout::*, style::*, widgets::*, Terminal, text::{Line, Span}};
 use rodio::{Decoder, OutputStream, Sink, Source};
 
 const APP_ID: &str = "1459887165784723673";
+
+// دمج ملف صوت المطر داخل البرنامج (تأكد من وجود الملف rain-sound.mp3 بجانب src)
+const EMBEDDED_SOUND: &[u8] = include_bytes!("../rain-sound.mp3");
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Theme { Cyan, Magenta, Green, Yellow, Red }
@@ -44,10 +47,23 @@ struct App {
     theme: Theme,
     settings_cursor: usize,
     volume: f32,
+    data_dir: PathBuf,
 }
 
 impl App {
     fn new() -> Self {
+        // تحديد مسار تخزين البيانات المستقر
+        let mut data_dir = dirs::data_dir().unwrap_or_else(|| PathBuf::from("."));
+        data_dir.push("pomodoro-tui");
+        let bgm_dir = data_dir.join("bgm");
+        let _ = fs::create_dir_all(&bgm_dir);
+
+        // حقن ملف المطر إذا لم يكن موجوداً
+        let rain_sound_path = bgm_dir.join("Rain_Background.mp3");
+        if !rain_sound_path.exists() {
+            let _ = fs::write(&rain_sound_path, EMBEDDED_SOUND);
+        }
+
         let mut app = Self {
             screen: Screen::Activity,
             acts: vec!["Studying 📚", "Coding 💻", "Deep Work 🧠", "Reading 📖"],
@@ -62,6 +78,7 @@ impl App {
             theme: Theme::Cyan,
             settings_cursor: 0,
             volume: 0.5,
+            data_dir,
         };
         app.refresh_bgm();
         app
@@ -69,8 +86,8 @@ impl App {
 
     fn refresh_bgm(&mut self) {
         let mut list = vec!["None".into()];
-        let _ = fs::create_dir_all("./bgm");
-        if let Ok(entries) = fs::read_dir("./bgm") {
+        let bgm_dir = self.data_dir.join("bgm");
+        if let Ok(entries) = fs::read_dir(bgm_dir) {
             for entry in entries.flatten() {
                 let name = entry.file_name().to_string_lossy().into_owned();
                 if name.ends_with(".mp3") { list.push(name); }
@@ -84,14 +101,16 @@ impl App {
         let status = self.status_msg.clone();
         let downloading = self.is_downloading.clone();
         let done = self.download_done.clone();
+        let target_pattern = self.data_dir.join("bgm").join("%(title)s.%(ext)s");
+        let target_str = target_pattern.to_string_lossy().into_owned();
         self.input.clear();
 
         std::thread::spawn(move || {
             if let Ok(mut d) = downloading.lock() { *d = true; }
-            if let Ok(mut s) = status.lock() { *s = "📥 Downloading background song...".into(); }
+            if let Ok(mut s) = status.lock() { *s = "📥 Downloading to system storage...".into(); }
             
             let cmd = Command::new("yt-dlp")
-                .args(["-x", "--audio-format", "mp3", "--quiet", "--no-warnings", "-o", "bgm/%(title)s.%(ext)s", &url])
+                .args(["-x", "--audio-format", "mp3", "--quiet", "--no-warnings", "-o", &target_str, &url])
                 .stdout(Stdio::null()).stderr(Stdio::null()).status();
 
             let msg = if let Ok(s) = cmd { if s.success() { "✅ Success! Press ENTER" } else { "❌ Failed" } } else { "❌ yt-dlp missing" };
@@ -103,7 +122,7 @@ impl App {
     fn play_bgm(&mut self) {
         self.stop_bgm();
         if self.bgm_idx == 0 { return; }
-        let path = format!("./bgm/{}", self.bgm_list[self.bgm_idx]);
+        let path = self.data_dir.join("bgm").join(&self.bgm_list[self.bgm_idx]);
         if let Ok(file) = fs::File::open(path) {
             if let Ok((stream, handle)) = OutputStream::try_default() {
                 if let Ok(sink) = Sink::try_new(&handle) {
@@ -146,8 +165,7 @@ impl App {
                 else { self.work = false; self.rem = if self.mins >= 40 { 600 } else { 300 }; t = "Break! ☕"; b = "Time to rest."; }
             } else { self.work = true; self.current += 1; self.rem = self.mins * 60; t = "Work! 🔥"; b = "Focus time."; }
             if self.notifications_enabled { let _ = notify_rust::Notification::new().summary(t).body(b).show(); }
-            self.paused = true;
-            if let Some(s) = &self.sink { s.pause(); }
+            self.paused = true; if let Some(s) = &self.sink { s.pause(); }
         }
     }
 }
@@ -179,7 +197,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     Screen::Activity => match key.code {
                         KeyCode::Up | KeyCode::Char('k') => { app.idx = app.idx.saturating_sub(1); l_state.select(Some(app.idx)); }
                         KeyCode::Down | KeyCode::Char('j') => { if app.idx < app.acts.len()-1 { app.idx += 1; l_state.select(Some(app.idx)); } }
-                        KeyCode::Enter | KeyCode::Char('l') => app.screen = Screen::Duration,
+                        KeyCode::Enter | KeyCode::Char('l') | KeyCode::Right => app.screen = Screen::Duration,
                         KeyCode::Char('s') => app.screen = Screen::Settings,
                         KeyCode::Char('q') => break,
                         _ => {}
@@ -187,23 +205,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                     Screen::Duration => match key.code {
                         KeyCode::Up | KeyCode::Char('k') => app.mins += 1,
                         KeyCode::Down | KeyCode::Char('j') => app.mins = app.mins.saturating_sub(1).max(1),
-                        KeyCode::Enter | KeyCode::Char('l') => app.screen = Screen::Sessions,
-                        KeyCode::Esc | KeyCode::Char('h') => app.screen = Screen::Activity,
+                        KeyCode::Enter | KeyCode::Char('l') | KeyCode::Right => app.screen = Screen::Sessions,
+                        KeyCode::Char('h') | KeyCode::Left | KeyCode::Esc => app.screen = Screen::Activity,
                         _ => {}
                     },
                     Screen::Sessions => match key.code {
                         KeyCode::Up | KeyCode::Char('k') => app.total += 1,
                         KeyCode::Down | KeyCode::Char('j') => app.total = app.total.saturating_sub(1).max(1),
-                        KeyCode::Enter | KeyCode::Char('l') => { app.screen = Screen::BGM; l_state.select(Some(app.bgm_idx)); }
-                        KeyCode::Esc | KeyCode::Char('h') => app.screen = Screen::Duration,
+                        KeyCode::Enter | KeyCode::Char('l') | KeyCode::Right => { app.screen = Screen::BGM; l_state.select(Some(app.bgm_idx)); }
+                        KeyCode::Char('h') | KeyCode::Left | KeyCode::Esc => app.screen = Screen::Duration,
                         _ => {}
                     },
                     Screen::BGM => match key.code {
                         KeyCode::Char('i') => { app.screen = Screen::BGMImport; app.input.clear(); }
                         KeyCode::Up | KeyCode::Char('k') => { app.bgm_idx = app.bgm_idx.saturating_sub(1); l_state.select(Some(app.bgm_idx)); }
                         KeyCode::Down | KeyCode::Char('j') => { if app.bgm_idx < app.bgm_list.len()-1 { app.bgm_idx += 1; l_state.select(Some(app.bgm_idx)); } }
-                        KeyCode::Enter | KeyCode::Char('l') => { app.rem = app.mins * 60; app.screen = Screen::Timer; app.work = true; app.paused = false; app.play_bgm(); }
-                        KeyCode::Esc | KeyCode::Char('h') => app.screen = Screen::Sessions,
+                        KeyCode::Enter | KeyCode::Char('l') | KeyCode::Right => { app.rem = app.mins * 60; app.screen = Screen::Timer; app.work = true; app.paused = false; app.play_bgm(); }
+                        KeyCode::Char('h') | KeyCode::Left | KeyCode::Esc => app.screen = Screen::Sessions,
                         _ => {}
                     },
                     Screen::BGMImport => match key.code {
@@ -220,14 +238,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                             if app.settings_cursor == 0 { app.notifications_enabled = !app.notifications_enabled; }
                             else { app.theme = match app.theme { Theme::Cyan => Theme::Magenta, Theme::Magenta => Theme::Green, Theme::Green => Theme::Yellow, Theme::Yellow => Theme::Red, Theme::Red => Theme::Cyan }; }
                         }
-                        KeyCode::Esc | KeyCode::Char('q') => app.screen = Screen::Activity,
+                        KeyCode::Esc | KeyCode::Char('q') | KeyCode::Char('h') => app.screen = Screen::Activity,
                         _ => {}
                     },
                     Screen::Timer => match key.code {
                         KeyCode::Char(' ') => app.toggle_pause(),
                         KeyCode::Char('+') | KeyCode::Char('=') => app.adjust_volume(0.05),
                         KeyCode::Char('-') | KeyCode::Char('_') => app.adjust_volume(-0.05),
-                        KeyCode::Char('q') | KeyCode::Esc | KeyCode::Char('h') => { app.stop_bgm(); app.screen = Screen::Activity; }
+                        KeyCode::Char('q') | KeyCode::Char('h') | KeyCode::Left | KeyCode::Esc => { app.stop_bgm(); app.screen = Screen::Activity; }
                         _ => {}
                     },
                 }
@@ -248,7 +266,6 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
     f.render_widget(Paragraph::new("POMODORO TUI").alignment(Alignment::Center).block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(theme_color))), chunks[0]);
     let main_area = centered_rect(70, 60, chunks[1]);
 
-    // حل تحذير status_msg: نعرض الرسالة الآن بوضوح في الواجهة
     if *app.is_downloading.lock().unwrap() {
         let msg = app.status_msg.lock().unwrap().clone();
         f.render_widget(Paragraph::new(format!("\n\n{}", msg)).alignment(Alignment::Center).block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(theme_color)).title(" Background Process ")), main_area);
@@ -259,10 +276,10 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
                 f.render_stateful_widget(List::new(items).block(Block::default().title(" [1] Select Activity ").borders(Borders::ALL).border_style(Style::default().fg(theme_color))).highlight_style(Style::default().bg(theme_color).fg(Color::Black)), main_area, l_state);
             }
             Screen::Duration => {
-                f.render_widget(Paragraph::new(format!("\n\nFocus Time: {} min\n\n[J/K] Adjust | [L] Next", app.mins)).alignment(Alignment::Center).block(Block::default().title(" [2] Duration ").borders(Borders::ALL).border_style(Style::default().fg(theme_color))), main_area);
+                f.render_widget(Paragraph::new(format!("\n\nFocus Time: {} min\n\n[J/K] Adjust | [L/Right] Next", app.mins)).alignment(Alignment::Center).block(Block::default().title(" [2] Duration ").borders(Borders::ALL).border_style(Style::default().fg(theme_color))), main_area);
             }
             Screen::Sessions => {
-                f.render_widget(Paragraph::new(format!("\n\nSessions: {}\n\n[J/K] Adjust | [L] Next", app.total)).alignment(Alignment::Center).block(Block::default().title(" [3] Sessions ").borders(Borders::ALL).border_style(Style::default().fg(theme_color))), main_area);
+                f.render_widget(Paragraph::new(format!("\n\nSessions: {}\n\n[J/K] Adjust | [L/Right] Next", app.total)).alignment(Alignment::Center).block(Block::default().title(" [3] Sessions ").borders(Borders::ALL).border_style(Style::default().fg(theme_color))), main_area);
             }
             Screen::BGM => {
                 let items: Vec<ListItem> = app.bgm_list.iter().map(|b| ListItem::new(b.as_str())).collect();
@@ -274,10 +291,11 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
             }
             Screen::Settings => {
                 let n_status = if app.notifications_enabled { "ON" } else { "OFF" };
+                let t_name = format!("{:?}", app.theme);
                 let text = vec![
                     Line::from(vec![Span::styled(if app.settings_cursor == 0 { "> Notifications: " } else { "  Notifications: " }, Style::default().fg(if app.settings_cursor == 0 { theme_color } else { Color::White })), Span::raw(n_status)]),
                     Line::from(vec![Span::raw("")]),
-                    Line::from(vec![Span::styled(if app.settings_cursor == 1 { "> Theme: " } else { "  Theme: " }, Style::default().fg(if app.settings_cursor == 1 { theme_color } else { Color::White })), Span::raw(format!("{:?}", app.theme))]),
+                    Line::from(vec![Span::styled(if app.settings_cursor == 1 { "> Theme: " } else { "  Theme: " }, Style::default().fg(if app.settings_cursor == 1 { theme_color } else { Color::White })), Span::raw(&t_name)]),
                 ];
                 f.render_widget(Paragraph::new(text).alignment(Alignment::Center).block(Block::default().title(" Settings ").borders(Borders::ALL).border_style(Style::default().fg(theme_color))), main_area);
             }
@@ -290,7 +308,14 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
             }
         }
     }
-    f.render_widget(Paragraph::new(" [Space] Pause | [+/-] Vol | [HJKL] Navigate | [Q] Quit ").alignment(Alignment::Center).block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::DarkGray))), chunks[2]);
+    
+    let help_text = match app.screen {
+        Screen::Activity => " [Arrows/HJKL] Move | [S] Settings | [Q] Quit ",
+        Screen::Timer => " [Space] Pause | [+/-] Vol | [H/Left] Stop & Menu ",
+        Screen::Settings => " [J/K] Select | [H/L] Change | [Esc/Q] Back ",
+        _ => " [Arrows/HJKL] Navigate | [Esc] Back ",
+    };
+    f.render_widget(Paragraph::new(help_text).alignment(Alignment::Center).block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::DarkGray))), chunks[2]);
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
@@ -301,12 +326,7 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
 fn update_presence(drpc: &mut Option<DiscordIpcClient>, app: &App) {
     if let Some(c) = drpc {
         let (state, details) = match app.screen {
-            Screen::Timer => {
-                let s = if app.paused { format!("⏸️ Paused: {}", app.acts[app.idx]) } 
-                        else if !app.work { "☕ Taking a Break".to_string() }
-                        else { format!("🔥 Focusing: {}", app.acts[app.idx]) };
-                (s, format!("Session {} of {}", app.current, app.total))
-            },
+            Screen::Timer => (if app.paused { format!("⏸️ Paused: {}", app.acts[app.idx]) } else if !app.work { "☕ Taking a Break".to_string() } else { format!("🔥 Focusing: {}", app.acts[app.idx]) }, format!("Session {} of {}", app.current, app.total)),
             _ => ("Configuring...".into(), "Main Menu".into()),
         };
         let mut p = activity::Activity::new().state(&state).details(&details).assets(activity::Assets::new().large_image("app_icon"));

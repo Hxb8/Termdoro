@@ -1,6 +1,6 @@
 [package]
 name = "pomodoro-tui-discord"
-version = "1.0.7"
+version = "1.0.8"
 edition = "2021"
 authors = ["hexbyte16 islamamara062@gmail.com"]
 description = "Professional Pomodoro TUI with Discord and YouTube BGM support."
@@ -27,5 +27,5 @@ discord-rich-presence = "0.2"
 notify-rust = "4"
 rodio = "0.17"
 reqwest = { version = "0.11", features = ["blocking"] }
-
+dirs = "5.0"
 
