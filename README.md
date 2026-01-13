@@ -1,54 +1,73 @@
-# 🦀 Rust Pomo TUI - Discord Edition 🚀
+```markdown
+# 🦀 Pomodoro TUI - Ultimate Edition 🚀
 
-**Study with style!** A professional Terminal User Interface (TUI) Pomodoro timer that syncs your focus sessions directly to your Discord profile. Perfect for "Study With Me" communities.
+**Focus like a pro!** A high-performance Terminal User Interface (TUI) Pomodoro timer written in Rust. Sync your sessions with Discord, listen to your favorite YouTube BGM, and customize your experience with themes.
 
 ---
 
 ## ✨ Features | المميزات
-*   **🎯 Task Selection:** Choose what you're doing (Studying, Programming, Working, etc.).
-*   **⏱️ Flexible Durations:** Set sessions between 25 to 50 minutes.
-*   **☕ Smart Breaks:** Automatically calculates break time (5 or 10 mins) based on your focus duration.
-*   **🎮 Discord Rich Presence:** Shows your current session status and remaining time to your friends.
-*   **💻 Clean UI:** Beautifully crafted Terminal interface using `ratatui`.
-*   **⚡ Lightweight:** Written in Rust for maximum performance and minimum RAM usage.
+
+*   **🎮 Discord Rich Presence:** Live countdown timer and pause status on your Discord profile.
+*   **🎶 YouTube BGM Importer:** Download and play your favorite background music/songs directly from YouTube.
+*   **Vim-Style Navigation:** Full support for `HJKL` and Arrow keys.
+*   **🎨 Custom Themes:** Change the look of your app (Cyan, Magenta, Green, Yellow, Red).
+*   **🔔 System Notifications:** Get notified when a session or break ends.
+*   **⏱️ Infinite Customization:** Set any duration for sessions and breaks.
+*   **⚡ Lightweight & Fast:** Built with Rust, consumes less than 10MB of RAM.
 
 ---
 
-## 📸 Screenshots | صور التطبيق
+## 📸 App Showcase | عرض التطبيق
 
-### 1️⃣ Home Screen | القائمة الرئيسية
+### 1️⃣ Main Menu | القائمة الرئيسية
 ![Home Screen](screenshots/Home.png)
 
-### 2️⃣ Setup Process | خطوات الإعداد
-Choose your activity, duration, and number of sessions:
-*اختر النشاط، المدة، وعدد الجلسات:*
+### 2️⃣ Flexible Setup | إعداد مرن للجلسات
+*Choose your activity, custom duration, and sessions:*
 
 | Duration Selection | Session Count |
 | :---: | :---: |
 | ![Duration](screenshots/Session-Duration.png) | ![Sessions](screenshots/Sessions.png) |
 
-### 3️⃣ Focus Mode | وضع التركيز
-This is how the timer looks while you are working:
-*شكل العداد أثناء العمل:*
+### 3️⃣ Live Focus Mode & Discord | وضع التركيز وتكامل ديسكورد
+*Beautiful Gauge with live Discord presence:*
 
 ![In Action](screenshots/howitlook.png)
-
-### 4️⃣ Discord Integration | التكامل مع ديسكورد
-How your status appears to your friends:
-*كيف تظهر حالتك لأصدقائك:*
-
 ![Discord Status](screenshots/discordstatusprewier.png)
 
 ---
 
 ## 🛠️ Installation | التحميل والتشغيل
 
-### For Users (Windows/Linux/macOS)
+### 🟦 Arch Linux (AUR)
+If you are using Arch, Manjaro, or EndeavourOS:
+```bash
+yay -S pomodoro-tui
+```
+*Then just type `pomo` in your terminal!*
+
+### 🟧 Universal (Linux & macOS)
+One-line installer:
+```bash
+curl -sSL https://raw.githubusercontent.com/hexbyte16/rust-pomo-discord/main/install.sh | bash
+```
+
+### 🟫 Developers (Cargo)
+```bash
+cargo install rust-pomo-discord
+```
+
+### ⬜ Windows
 1. Go to the [Releases](https://github.com/hexbyte16/rust-pomo-discord/releases) page.
-2. Download the version for your Operating System.
-4. Run the file in your terminal.
-   *   **Linux:** `chmod +x rust-pomo-discord && ./rust-pomo-discord`
-   *   **Windows:** Double-click the `.exe` file.
+2. Download `pomo-windows.zip`.
+3. Extract and run `pomo.exe`.
+
+---
+
+## 📋 Requirements | المتطلبات
+To use the **YouTube Import** features, ensure you have these installed:
+*   `yt-dlp`
+*   `ffmpeg`
 
 ---
 
@@ -56,20 +75,24 @@ How your status appears to your friends:
 
 | Key | Action | الوصف |
 |-----|--------|-------|
-| `Space` | Play/Pause | تشغيل / إيقاف مؤقت |
-| `R` | Reset Timer | إعادة ضبط المؤقت |
-| `Q` | Quit / Back | خروج أو عودة للقائمة |
-| `↑/↓` | Navigate | التنقل في القائمة |
-| `Enter` | Select | اختيار |
+| `Space` | Play / Pause | تشغيل / إيقاف مؤقت |
+| `H / Left` | Back / Stop | عودة / إيقاف المؤقت |
+| `L / Right / Enter`| Select / Next | اختيار / المرحلة التالية |
+| `J / K / Arrows` | Navigate / Adjust | التنقل / تعديل القيم |
+| `S` | Settings | الإعدادات |
+| `I` | Import BGM | استيراد موسيقى من يوتيوب |
+| `Q / Esc` | Quit | خروج |
 
 ---
 
 ## 🛡️ Privacy & Security
-This app only connects to Discord through the official IPC (Local) to update your status. No data is collected or sent to external servers.
+This application is **Open Source**. It only communicates locally with your Discord client via IPC. No personal data is collected or sent to any server.
 
 ---
 
 ## 🤝 Contribution
-If you find a bug or have a feature request, feel free to open an issue (if the repo is public) or contact me!
+Found a bug? Have an idea? Feel free to open an **Issue** or submit a **Pull Request**! 
 
 **Made with ❤️ and 🦀 by [Islam/Hexbyte]**
+```
+
