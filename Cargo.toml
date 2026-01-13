@@ -1,6 +1,6 @@
 [package]
 name = "pomodoro-tui-discord"
-version = "1.0.6"
+version = "1.0.7"
 edition = "2021"
 authors = ["hexbyte16 islamamara062@@gmail.com"]
 description = "Professional Pomodoro TUI with Discord and YouTube BGM support."
