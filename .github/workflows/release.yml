@@ -12,21 +12,19 @@ jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    # جعل المهام تعمل بشكل مستقل (لو فشل واحد لا يتوقف البقية)
-    continue-on-error: true
     strategy:
-      fail-fast: false
+      fail-fast: false # لكي لا يتوقف الجميع إذا فشل نظام واحد
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
-            artifact_name: rust-pomo-discord
+            artifact_name: pomodoro-tui-discord
             asset_name: pomo-linux.tar.gz
           - os: windows-latest
-            artifact_name: rust-pomo-discord.exe
+            artifact_name: pomodoro-tui-discord.exe
             asset_name: pomo-windows.zip
           - os: macos-latest
-            artifact_name: rust-pomo-discord
+            artifact_name: pomodoro-tui-discord
             asset_name: pomo-macos.tar.gz
 
     steps:
@@ -36,7 +34,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libssl-dev
+          sudo apt-get install -y pkg-config libssl-dev libasound2-dev libdbus-1-dev
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -48,14 +46,14 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           cd target/release
-          # التأكد من اسم الملف قبل الضغط
           tar -czf ../../${{ matrix.asset_name }} ${{ matrix.artifact_name }}
 
       - name: Package Assets (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
           cd target/release
-          compress-archive ${{ matrix.artifact_name }} ../../${{ matrix.asset_name }}
+          Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ../../${{ matrix.asset_name }}
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
