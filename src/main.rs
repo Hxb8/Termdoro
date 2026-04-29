@@ -6,7 +6,6 @@ use rodio::{Decoder, OutputStream, Sink, Source};
 
 const APP_ID: &str = "1459887165784723673";
 
-// دمج ملف صوت المطر داخل البرنامج (تأكد من وجود الملف rain-sound.mp3 بجانب src)
 const EMBEDDED_SOUND: &[u8] = include_bytes!("../rain-sound.mp3");
 
 #[derive(Debug, PartialEq, Clone, Copy)]
