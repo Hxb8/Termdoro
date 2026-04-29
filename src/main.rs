@@ -51,13 +51,11 @@ struct App {
 
 impl App {
     fn new() -> Self {
-        // تحديد مسار تخزين البيانات المستقر
         let mut data_dir = dirs::data_dir().unwrap_or_else(|| PathBuf::from("."));
         data_dir.push("pomodoro-tui");
         let bgm_dir = data_dir.join("bgm");
         let _ = fs::create_dir_all(&bgm_dir);
 
-        // حقن ملف المطر إذا لم يكن موجوداً
         let rain_sound_path = bgm_dir.join("Rain_Background.mp3");
         if !rain_sound_path.exists() {
             let _ = fs::write(&rain_sound_path, EMBEDDED_SOUND);
