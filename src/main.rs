@@ -46,6 +46,7 @@ struct App {
     theme: Theme,
     settings_cursor: usize,
     volume: f32,
+    muted: bool,
     data_dir: PathBuf,
 }
 
@@ -75,6 +76,7 @@ impl App {
             theme: Theme::Cyan,
             settings_cursor: 0,
             volume: 0.5,
+            muted: false,
             data_dir,
         };
         app.refresh_bgm();
@@ -124,7 +126,7 @@ impl App {
             if let Ok((stream, handle)) = OutputStream::try_default() {
                 if let Ok(sink) = Sink::try_new(&handle) {
                     if let Ok(source) = Decoder::new(io::BufReader::new(file)) {
-                        sink.set_volume(self.volume);
+                        sink.set_volume(if self.muted { 0.0 } else { self.volume });
                         sink.append(source.convert_samples::<f32>().repeat_infinite());
                         if self.paused { sink.pause(); }
                         self.sink = Some(sink);
@@ -142,7 +144,16 @@ impl App {
 
     fn adjust_volume(&mut self, delta: f32) {
         self.volume = (self.volume + delta).clamp(0.0, 1.0);
-        if let Some(s) = &self.sink { s.set_volume(self.volume); }
+        if !self.muted {
+            if let Some(s) = &self.sink { s.set_volume(self.volume); }
+        }
+    }
+
+    fn toggle_mute(&mut self) {
+        self.muted = !self.muted;
+        if let Some(s) = &self.sink {
+            s.set_volume(if self.muted { 0.0 } else { self.volume });
+        }
     }
 
     fn toggle_pause(&mut self) {
@@ -240,6 +251,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     },
                     Screen::Timer => match key.code {
                         KeyCode::Char(' ') => app.toggle_pause(),
+                        KeyCode::Char('m') | KeyCode::Char('M') => app.toggle_mute(),
                         KeyCode::Char('+') | KeyCode::Char('=') => app.adjust_volume(0.05),
                         KeyCode::Char('-') | KeyCode::Char('_') => app.adjust_volume(-0.05),
                         KeyCode::Char('q') | KeyCode::Char('h') | KeyCode::Left | KeyCode::Esc => { app.stop_bgm(); app.screen = Screen::Activity; }
@@ -300,15 +312,15 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
                 let total = if app.work { app.mins * 60 } else { if app.mins >= 40 { 600 } else { 300 } };
                 let pct = ((total - app.rem) as f64 / total as f64 * 100.0) as u16;
                 let gauge_color = if app.paused { Color::Gray } else if app.work { Color::Red } else { Color::Green };
-                let v_level = (app.volume * 100.0) as u32;
-                f.render_widget(Gauge::default().block(Block::default().title(format!(" Session {} of {} ", app.current, app.total)).borders(Borders::ALL)).gauge_style(Style::default().fg(gauge_color)).percent(pct.min(100)).label(format!("{}:{:02} | Vol: {}%", app.rem / 60, app.rem % 60, v_level)), main_area);
+                let v_level = if app.muted { "Muted".to_string() } else { format!("{}%", (app.volume * 100.0) as u32) };
+                f.render_widget(Gauge::default().block(Block::default().title(format!(" Session {} of {} ", app.current, app.total)).borders(Borders::ALL)).gauge_style(Style::default().fg(gauge_color)).percent(pct.min(100)).label(format!("{}:{:02} | Vol: {}", app.rem / 60, app.rem % 60, v_level)), main_area);
             }
         }
     }
     
     let help_text = match app.screen {
         Screen::Activity => " [Arrows/HJKL] Move | [S] Settings | [Q] Quit ",
-        Screen::Timer => " [Space] Pause | [+/-] Vol | [H/Left] Stop & Menu ",
+        Screen::Timer => " [Space] Pause | [+/-] Vol | [M] Mute | [H/Left] Stop & Menu ",
         Screen::Settings => " [J/K] Select | [H/L] Change | [Esc/Q] Back ",
         _ => " [Arrows/HJKL] Navigate | [Esc] Back ",
     };
