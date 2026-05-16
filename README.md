@@ -84,6 +84,18 @@ To use the **YouTube Import** features, ensure you have these installed:
 
 ---
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=hexbyte16%2Frust-pomo-discord&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=hexbyte16/rust-pomo-discord&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=hexbyte16/rust-pomo-discord&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=hexbyte16/rust-pomo-discord&type=date&legend=top-left" />
+ </picture>
+</a>
+
+---
+
 ## 🛡️ Privacy & Security
 This application is **Open Source**. It only communicates locally with your Discord client via IPC. No personal data is collected or sent to any server.
 
