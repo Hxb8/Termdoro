@@ -1,5 +1,5 @@
 use std::{error::Error, io, fs, process::{Command, Stdio}, sync::{Arc, Mutex}, time::{Duration, Instant, SystemTime, UNIX_EPOCH}, path::PathBuf};
-use crossterm::{event::{self, DisableMouseCapture, Event, KeyCode}, execute, terminal::*};
+use crossterm::{event::{self, DisableMouseCapture, Event, KeyCode, KeyEventKind}, execute, terminal::*};
 use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
 use ratatui::{backend::CrosstermBackend, layout::*, style::*, widgets::*, Terminal, text::{Line, Span}};
 use rodio::{Decoder, OutputStream, Sink, Source};
@@ -193,6 +193,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         terminal.draw(|f| ui(f, &mut app, &mut l_state))?;
         if event::poll(Duration::from_millis(50))? {
             if let Event::Key(key) = event::read()? {
+                if key.kind != KeyEventKind::Press { continue; }
                 if *app.is_downloading.lock().unwrap() {
                     if *app.download_done.lock().unwrap() && key.code == KeyCode::Enter {
                         if let Ok(mut d) = app.is_downloading.lock() { *d = false; }
