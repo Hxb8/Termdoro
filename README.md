@@ -86,14 +86,14 @@ Bug reports and feature requests are welcome — open an issue or submit a pull 
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=Hxb8%2Frust-pomo-discord&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=Hxb8%2FTermdoro&type=date&legend=top-left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Hxb8/rust-pomo-discord&type=date&theme=dark&legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Hxb8/rust-pomo-discord&type=date&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Hxb8/rust-pomo-discord&type=date&legend=top-left" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Hxb8/Termdoro&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Hxb8/Termdoro&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Hxb8/Termdoroterm&type=date&legend=top-left" />
   </picture>
 </a>
 
 ## Author
 
-Maintained by [Islam / Hxb8](https://github.com/Hxb8).
+Maintained by [Islam / Hxb8](https://github.com/Hxb8)
