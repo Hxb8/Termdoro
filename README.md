@@ -1,108 +1,99 @@
-# 🦀 Pomodoro TUI  🚀
+# Pomodoro TUI
 
-**Focus like a pro!** A high-performance Terminal User Interface (TUI) Pomodoro timer written in Rust. Sync your sessions with Discord, listen to your favorite YouTube BGM, and customize your experience with themes.
+A terminal-based Pomodoro timer written in Rust, with Discord Rich Presence integration, YouTube background music support, and themeable Vim-style navigation.
 
----
+## Features
 
-## ✨ Features | المميزات
+- **Discord Rich Presence** — Shows a live countdown and pause status on your Discord profile.
+- **YouTube BGM Importer** — Download and play background music directly from YouTube.
+- **Vim-style navigation** — Full support for `HJKL` and arrow keys.
+- **Custom themes** — Cyan, Magenta, Green, Yellow, Red.
+- **System notifications** — Alerts when a session or break ends.
+- **Flexible timers** — Set any duration for sessions and breaks.
+- **Lightweight** — Built in Rust, uses under 10MB of RAM.
 
-*   **🎮 Discord Rich Presence:** Live countdown timer and pause status on your Discord profile.
-*   **🎶 YouTube BGM Importer:** Download and play your favorite background music/songs directly from YouTube.
-*   **Vim-Style Navigation:** Full support for `HJKL` and Arrow keys.
-*   **🎨 Custom Themes:** Change the look of your app (Cyan, Magenta, Green, Yellow, Red).
-*   **🔔 System Notifications:** Get notified when a session or break ends.
-*   **⏱️ Infinite Customization:** Set any duration for sessions and breaks.
-*   **⚡ Lightweight & Fast:** Built with Rust, consumes less than 10MB of RAM.
+## Screenshots
 
----
-
-## 📸 App Showcase | عرض التطبيق
-
-### 1️⃣ Main Menu | القائمة الرئيسية
+### Main Menu
 ![Home Screen](screenshots/Home.png)
 
-### 2️⃣ Flexible Setup | إعداد مرن للجلسات
-*Choose your activity, custom duration, and sessions:*
+### Session Setup
+Choose your activity, duration, and number of sessions.
 
 | Duration Selection | Session Count |
 | :---: | :---: |
 | ![Duration](screenshots/Session-Duration.png) | ![Sessions](screenshots/Sessions.png) |
 
-### 3️⃣ Live Focus Mode & Discord | وضع التركيز وتكامل ديسكورد
-*Beautiful Gauge with live Discord presence:*
+### Focus Mode & Discord Integration
+| Focus Gauge | Discord Status |
+| :---: | :---: |
+| ![In Action](screenshots/howitlook.png) | ![Discord Status](screenshots/discordstatusprewier.png) |
 
-![In Action](screenshots/howitlook.png)
-![Discord Status](screenshots/discordstatusprewier.png)
+## Installation
 
----
+### Arch Linux (AUR)
 
-## 🛠️ Installation | التحميل والتشغيل
-
-### 🟦 Arch Linux (AUR)
-If you are using Arch, Manjaro, or EndeavourOS:
 ```bash
 yay -S pomodoro-tui
 ```
-*Then just type `pomo` in your terminal!*
 
-### 🟧 Universal (Linux & macOS)
-One-line installer:
+Run it with `pomo`.
+
+### Linux & macOS (one-line installer)
+
 ```bash
-curl -sSL https://raw.githubusercontent.com/hexbyte16/rust-pomo-discord/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/Hxb8/rust-pomo-discord/main/install.sh | bash
 ```
 
-### 🟫 Developers (Cargo)
+### Cargo
+
 ```bash
 cargo install pomodoro-tui-discord
 ```
 
-### ⬜ Windows
-1. Go to the [Releases](https://github.com/hexbyte16/rust-pomo-discord/releases) page.
+### Windows
+
+1. Go to the [Releases](https://github.com/Hxb8/rust-pomo-discord/releases) page.
 2. Download `pomo-windows.zip`.
 3. Extract and run `pomo.exe`.
 
----
+## Requirements
 
-## 📋 Requirements | المتطلبات
-To use the **YouTube Import** features, ensure you have these installed:
-*   `yt-dlp`
-*   `ffmpeg`
+To use the YouTube import feature, make sure these are installed:
 
----
+- `yt-dlp`
+- `ffmpeg`
 
-## ⌨️ Control Keys | أزرار التحكم
+## Controls
 
-| Key | Action | الوصف |
-|-----|--------|-------|
-| `Space` | Play / Pause | تشغيل / إيقاف مؤقت |
-| `H / Left` | Back / Stop | عودة / إيقاف المؤقت |
-| `L / Right / Enter`| Select / Next | اختيار / المرحلة التالية |
-| `J / K / Arrows` | Navigate / Adjust | التنقل / تعديل القيم |
-| `S` | Settings | الإعدادات |
-| `I` | Import BGM | استيراد موسيقى من يوتيوب |
-| `Q / Esc` | Quit | خروج |
+| Key | Action |
+|-----|--------|
+| `Space` | Play / Pause |
+| `H` / `Left` | Back / Stop |
+| `L` / `Right` / `Enter` | Select / Next |
+| `J` / `K` / Arrows | Navigate / Adjust |
+| `S` | Settings |
+| `I` | Import BGM |
+| `Q` / `Esc` | Quit |
 
----
+## Privacy & Security
+
+This application is open source. It communicates with Discord only locally via IPC. No personal data is collected or transmitted to any external server.
+
+## Contributing
+
+Bug reports and feature requests are welcome — open an issue or submit a pull request.
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=hexbyte16%2Frust-pomo-discord&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=hexbyte16/rust-pomo-discord&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=hexbyte16/rust-pomo-discord&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=hexbyte16/rust-pomo-discord&type=date&legend=top-left" />
- </picture>
+<a href="https://www.star-history.com/?repos=Hxb8%2Frust-pomo-discord&type=date&legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Hxb8/rust-pomo-discord&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Hxb8/rust-pomo-discord&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Hxb8/rust-pomo-discord&type=date&legend=top-left" />
+  </picture>
 </a>
 
----
+## Author
 
-## 🛡️ Privacy & Security
-This application is **Open Source**. It only communicates locally with your Discord client via IPC. No personal data is collected or sent to any server.
-
----
-
-## 🤝 Contribution
-Found a bug? Have an idea? Feel free to open an **Issue** or submit a **Pull Request**! 
-
-**Made with ❤️ and 🦀 by [Islam/Hexbyte]**
-
+Maintained by [Islam / Hxb8](https://github.com/Hxb8).
