@@ -312,15 +312,20 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
                 let total = if app.work { app.mins * 60 } else { if app.mins >= 40 { 600 } else { 300 } };
                 let pct = ((total - app.rem) as f64 / total as f64 * 100.0) as u16;
                 let gauge_color = if app.paused { Color::Gray } else if app.work { Color::Red } else { Color::Green };
-                let v_level = if app.muted { "Muted".to_string() } else { format!("{}%", (app.volume * 100.0) as u32) };
-                f.render_widget(Gauge::default().block(Block::default().title(format!(" Session {} of {} ", app.current, app.total)).borders(Borders::ALL)).gauge_style(Style::default().fg(gauge_color)).percent(pct.min(100)).label(format!("{}:{:02} | Vol: {}", app.rem / 60, app.rem % 60, v_level)), main_area);
+                let label = if app.bgm_idx == 0 {
+                    format!("{}:{:02}", app.rem / 60, app.rem % 60)
+                } else {
+                    let v_level = if app.muted { "Muted".to_string() } else { format!("{}%", (app.volume * 100.0) as u32) };
+                    format!("{}:{:02} | Vol: {}", app.rem / 60, app.rem % 60, v_level)
+                };
+                f.render_widget(Gauge::default().block(Block::default().title(format!(" Session {} of {} ", app.current, app.total)).borders(Borders::ALL)).gauge_style(Style::default().fg(gauge_color)).percent(pct.min(100)).label(label), main_area);
             }
         }
     }
     
     let help_text = match app.screen {
         Screen::Activity => " [Arrows/HJKL] Move | [S] Settings | [Q] Quit ",
-        Screen::Timer => " [Space] Pause | [+/-] Vol | [M] Mute | [H/Left] Stop & Menu ",
+        Screen::Timer => if app.bgm_idx == 0 { " [Space] Pause | [H/Left] Stop & Menu " } else { " [Space] Pause | [+/-] Vol | [M] Mute | [H/Left] Stop & Menu " },
         Screen::Settings => " [J/K] Select | [H/L] Change | [Esc/Q] Back ",
         _ => " [Arrows/HJKL] Navigate | [Esc] Back ",
     };
