@@ -1,9 +1,9 @@
 # Rust build output (never commit this)
 target/
 
-# Go build output
-termdoro
-termdoro.exe
+# Go build output (root-anchored so cmd/termdoro/ is not ignored)
+/termdoro
+/termdoro.exe
 dist/
 *.tar.gz
 *.zip
