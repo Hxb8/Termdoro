@@ -1,0 +1,11 @@
+# Go build output
+termdoro
+termdoro.exe
+dist/
+*.tar.gz
+*.zip
+
+# Go test/coverage artifacts
+*.test
+*.out
+coverage.html
