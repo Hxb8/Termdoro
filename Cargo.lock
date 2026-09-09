@@ -1549,7 +1549,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pomodoro-tui-discord"
+name = "termdoro"
 version = "1.0.9"
 dependencies = [
  "crossterm",

@@ -243,7 +243,7 @@ fn format_duration(secs: u64) -> String {
 impl App {
     fn new() -> Self {
         let mut data_dir = dirs::data_dir().unwrap_or_else(|| PathBuf::from("."));
-        data_dir.push("pomodoro-tui");
+        data_dir.push("termdoro");
         let bgm_dir = data_dir.join("bgm");
         let _ = fs::create_dir_all(&bgm_dir);
 
@@ -610,7 +610,7 @@ fn ui(f: &mut ratatui::Frame, app: &mut App, l_state: &mut ListState) {
     ]).split(size);
 
     f.render_widget(
-        Paragraph::new("POMODORO TUI").alignment(Alignment::Center)
+        Paragraph::new("TERMDORO").alignment(Alignment::Center)
             .block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(theme_color))),
         chunks[0]
     );

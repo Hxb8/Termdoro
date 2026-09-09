@@ -1,4 +1,4 @@
-# Pomodoro TUI
+# Termdoro
 
 A terminal-based Pomodoro timer written in Rust, with Discord Rich Presence integration, YouTube background music support, and themeable Vim-style navigation.
 
@@ -31,31 +31,17 @@ Choose your activity, duration, and number of sessions.
 
 ## Installation
 
-### Arch Linux (AUR)
-
-```bash
-yay -S pomodoro-tui
-```
-
-Run it with `pomo`.
-
 ### Linux & macOS (one-line installer)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Hxb8/rust-pomo-discord/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/Hxb8/Termdoro/main/install.sh | bash
 ```
 
 ### Cargo
 
 ```bash
-cargo install pomodoro-tui-discord
+cargo install termdoro
 ```
-
-### Windows
-
-1. Go to the [Releases](https://github.com/Hxb8/rust-pomo-discord/releases) page.
-2. Download `pomo-windows.zip`.
-3. Extract and run `pomo.exe`.
 
 ## Requirements
 
@@ -90,7 +76,7 @@ Bug reports and feature requests are welcome — open an issue or submit a pull 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Hxb8/Termdoro&type=date&theme=dark&legend=top-left" />
     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Hxb8/Termdoro&type=date&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Hxb8/Termdoroterm&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Hxb8/Termdoro&type=date&legend=top-left" />
   </picture>
 </a>
 
