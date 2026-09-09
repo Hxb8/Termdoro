@@ -1,16 +1,22 @@
 # Termdoro
 
-A terminal-based Pomodoro timer written in Rust, with Discord Rich Presence integration, YouTube background music support, and themeable Vim-style navigation.
+A terminal-based Pomodoro timer written in Rust with background music, progress tracking, and Vim-style navigation.
 
 ## Features
 
-- **Discord Rich Presence** — Shows a live countdown and pause status on your Discord profile.
-- **YouTube BGM Importer** — Download and play background music directly from YouTube.
-- **Vim-style navigation** — Full support for `HJKL` and arrow keys.
-- **Custom themes** — Cyan, Magenta, Green, Yellow, Red.
-- **System notifications** — Alerts when a session or break ends.
-- **Flexible timers** — Set any duration for sessions and breaks.
-- **Lightweight** — Built in Rust, uses under 10MB of RAM.
+- **Pomodoro Timer** — Configurable focus duration and session count with automatic work/break cycles.
+- **Activity Management** — Create, select, and track multiple custom activities.
+- **Background Music** — Play MP3 background music during focus sessions with volume control and mute.
+- **YouTube BGM Importer** — Download and import music directly from YouTube URLs.
+- **Built-in Rain Sound** — Ships with a rain sound effect for focus and relaxation.
+- **Session Resume** — Automatically save and resume interrupted sessions on restart.
+- **Progress Dashboard** — Track total focus time, sessions completed, and per-activity statistics with time period filtering (All Time, Today, This Week, This Month).
+- **Detailed Activity Stats** — View completed vs incomplete sessions, average session length, and last session date.
+- **Custom Themes** — 5 color themes: Cyan, Magenta, Green, Yellow, Red.
+- **System Notifications** — Desktop alerts when a focus session or break ends.
+- **Vim-style Navigation** — Full `HJKL` and arrow key support throughout the app.
+- **Persistent Configuration** — Settings, activities, theme, and volume are saved automatically.
+- **Lightweight** — Built in Rust, TUI-based, minimal resource usage.
 
 ## Screenshots
 
@@ -24,10 +30,8 @@ Choose your activity, duration, and number of sessions.
 | :---: | :---: |
 | ![Duration](screenshots/Session-Duration.png) | ![Sessions](screenshots/Sessions.png) |
 
-### Focus Mode & Discord Integration
-| Focus Gauge | Discord Status |
-| :---: | :---: |
-| ![In Action](screenshots/howitlook.png) | ![Discord Status](screenshots/discordstatusprewier.png) |
+### Focus Mode
+![In Action](screenshots/howitlook.png)
 
 ## Installation
 
@@ -60,11 +64,11 @@ To use the YouTube import feature, make sure these are installed:
 | `J` / `K` / Arrows | Navigate / Adjust |
 | `S` | Settings |
 | `I` | Import BGM |
+| `M` | Mute / Unmute |
+| `+` / `-` | Volume Up / Down |
+| `A` | Add Activity |
+| `D` | Dashboard |
 | `Q` / `Esc` | Quit |
-
-## Privacy & Security
-
-This application is open source. It communicates with Discord only locally via IPC. No personal data is collected or transmitted to any external server.
 
 ## Contributing
 
