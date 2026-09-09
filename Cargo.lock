@@ -1559,6 +1559,8 @@ dependencies = [
  "ratatui",
  "reqwest",
  "rodio",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
